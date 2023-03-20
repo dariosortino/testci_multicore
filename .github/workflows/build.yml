@@ -25,8 +25,8 @@ jobs:
         pip3 install -r ../zephyr/scripts/requirements-base.txt
 
     - name: Build multicore
-        working-directory: mycode
-        run: |
-          west build --build-dir multicore\build multicore {{ matrix.sample }} --pristine \
-          --board nrf5340dk_nrf5340_cpuapp -- -DNCS_TOOLCHAIN_VERSION:STRING="NONE" \
-          -DCONF_FILE:STRING="multicore/prj.conf"
+      working-directory: mycode
+      run: |
+        west build --build-dir multicore\build multicore {{ matrix.sample }} --pristine \
+        --board nrf5340dk_nrf5340_cpuapp -- -DNCS_TOOLCHAIN_VERSION:STRING="NONE" \
+        -DCONF_FILE:STRING="multicore/prj.conf"

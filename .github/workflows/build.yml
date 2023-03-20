@@ -17,12 +17,12 @@ jobs:
         fetch-depth: 0
         path: mycode
 
-    # - name: Install west
-    #   run: |
-    #     pip3 install -U west
-    #     west init -l .
-    #     west update
-    #     pip3 install -r ../zephyr/scripts/requirements-base.txt
+    - name: Install west
+      run: |
+        cd mycode
+        west init -l .
+        west update
+      # pip3 install -r ../zephyr/scripts/requirements-base.txt
 
     - name: Build multicore
       working-directory: mycode

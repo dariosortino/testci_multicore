@@ -19,7 +19,7 @@ jobs:
 
     - name: Install west
       run: |
-        pip3 install -U wes
+        pip3 install -U west
         west init -l .
         west update
         pip3 install -r ../zephyr/scripts/requirements-base.txt

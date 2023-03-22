@@ -52,6 +52,7 @@ jobs:
     - name: Install additional Python dependencies
       run: |
         # See https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/installing.html#install-additional-python-dependencies
+        cd ncs
         pip3 install --user -r zephyr/scripts/requirements.txt
         pip3 install --user -r nrf/scripts/requirements.txt
         pip3 install --user -r bootloader/mcuboot/scripts/requirements.txt
@@ -72,6 +73,7 @@ jobs:
       working-directory: mycode
       run: |
         # Setup command line build env
+        cd ncs
         source zephyr/zephyr-env.sh
         west build --build-dir multicore\build multicore --pristine \
         --board nrf5340dk_nrf5340_cpuapp -- -DNCS_TOOLCHAIN_VERSION:STRING="NONE" \

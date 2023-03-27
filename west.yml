@@ -1,9 +1,12 @@
 manifest:
   remotes:
     - name: ncs-sdk
-      url-base: https://github.com/nrfconnect/sdk-nrf
+      url-base: https://github.com/nrfconnect/
     - name: zephyrproject
       url-base: https://github.com/zephyrproject-rtos
+
+  defaults:
+    remote: sdk-nrf
 
   projects:
     - name: ncs

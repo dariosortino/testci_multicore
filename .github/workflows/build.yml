@@ -48,7 +48,7 @@ jobs:
         # See https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/installing.html#get-the-ncs-code
         cd myroot
         echo "west init"
-        west init -l --mf mycode/west.yml mycode
+        west init -l mycode
         echo "west update"
         west update
         west zephyr-export

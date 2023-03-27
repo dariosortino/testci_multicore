@@ -48,6 +48,7 @@ jobs:
         # See https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/installing.html#get-the-ncs-code
         cd myroot
         echo "west init"
+        tree
         west init -l mycode
         echo "west update"
         west update

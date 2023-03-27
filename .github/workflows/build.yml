@@ -36,7 +36,6 @@ jobs:
         source ~/.bashrc
 
     - name: Restore cached west workspace
-    #TODO use flag?  if: ${{ env.action-restore-cache == 'true' }}
       uses: actions/cache/restore@v3
       with:
         path: myroot
@@ -58,8 +57,8 @@ jobs:
       if: ${{ steps.cache-restore-ncs-zephyr-workspace.outputs.cache-hit != 'true' }}
       uses: actions/cache/save@v3
       with:
-        path: 
-          - myroot
+        path: | 
+          - myroot/*
           - !myroot/mycode 
         key: ncs-zephyr-ci-workspace-${{hashFiles('west.yml')}} # west.yml path relative to your github repo
       id: cache-save-ncs-zephyr-workspace

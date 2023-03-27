@@ -5,9 +5,6 @@ manifest:
     - name: zephyrproject
       url-base: https://github.com/zephyrproject-rtos
 
-  defaults:
-    remote: ncs-sdk
-
   projects:
     - name: ncs
       repo-path: ncs-sdk

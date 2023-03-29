@@ -81,7 +81,7 @@ jobs:
         tar xvf zephyr-sdk-0.15.1_linux-x86_64.tar.gz --directory $HOME/.local
         cd $HOME/.local/zephyr-sdk-0.15.1
         ./setup.sh -t all -h -c
-        sudo cp ~/zephyr-sdk-0.15.1/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
+        sudo cp ~/.local/zephyr-sdk-0.15.1/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
         sudo udevadm control --reload
 
     - name: Build multicore

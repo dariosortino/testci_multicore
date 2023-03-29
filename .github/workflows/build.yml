@@ -36,7 +36,7 @@ jobs:
         source ~/.bashrc
 
     - name: Restore cached west workspace
-      uses: actions/cache/restore@v3
+      uses: actions/cache/restore@v3.3.1
       with:
         path: myroot
         key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
@@ -55,7 +55,7 @@ jobs:
 
     - name: Save cached west workspace
       if: ${{ steps.cache-restore-ncs-zephyr-workspace.outputs.cache-hit != 'true' }}
-      uses: actions/cache/save@v3
+      uses: actions/cache/save@v3.3.1
       with:
         path: | 
           myroot/*
@@ -89,6 +89,6 @@ jobs:
       run: |
         # Setup command line build env
         source zephyr/zephyr-env.sh
-        west build --build-dir mycode/multicore/build multicore --pristine \
+        west build --build-dir mycode/multicore/build mycode/multicore --pristine \
         --board nrf5340dk_nrf5340_cpuapp -- -DNCS_TOOLCHAIN_VERSION:STRING="NONE" \
         -DCONF_FILE:STRING="multicore/prj.conf"

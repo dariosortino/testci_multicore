@@ -85,10 +85,10 @@ jobs:
         sudo udevadm control --reload
 
     - name: Build multicore
-      working-directory: myroot
+      working-directory: myroot/mycode
       run: |
         # Setup command line build env
         source zephyr/zephyr-env.sh
-        west build --build-dir multicore\build multicore --pristine \
+        west build --build-dir multicore/build multicore --pristine \
         --board nrf5340dk_nrf5340_cpuapp -- -DNCS_TOOLCHAIN_VERSION:STRING="NONE" \
         -DCONF_FILE:STRING="multicore/prj.conf"

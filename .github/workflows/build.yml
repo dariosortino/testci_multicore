@@ -39,7 +39,7 @@ jobs:
       uses: actions/cache/restore@v3
       with:
         path: myroot
-        key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}} # west.yml path relative to your github repo
+        key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
       id: cache-restore-ncs-zephyr-workspace
       
     - name: Get nRF Connect SDK code
@@ -60,7 +60,7 @@ jobs:
         path: | 
           myroot/*
           !myroot/mycode 
-        key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}} # west.yml path relative to your github repo
+        key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
       id: cache-save-ncs-zephyr-workspace
 
     - name: Install additional Python dependencies
@@ -78,7 +78,7 @@ jobs:
         cd ~
         wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.16.0/zephyr-sdk-0.16.0_linux-x86_64.tar.xz
         wget -O - https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.16.0/sha256.sum | shasum --check --ignore-missing
-        tar xvf zephyr-sdk-0.16.0_linux-x86_64.tar.gz --directory $HOME/.local
+        tar xvf zephyr-sdk-0.16.0_linux-x86_64.tar.xz --directory $HOME/.local
         cd $HOME/.local/zephyr-sdk-0.16.0
         ./setup.sh
         sudo cp ~/zephyr-sdk-0.16.0/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d

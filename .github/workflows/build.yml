@@ -34,24 +34,24 @@ jobs:
         echo 'export PATH=~/.local/bin:"$PATH"' >> ~/.bashrc
         source ~/.bashrc
 
-    #- name: Restore cached west workspace
-    #  uses: actions/cache/restore@v3.3.1
-    #  with:
-    #    path: myroot
-    #    key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
-    #  id: cache-restore-ncs-zephyr-workspace
-    
     - name: Restore cached west workspace
-      uses: actions/download-artifact@v3
-      id: artifacts-download-ncs-zephyr-workspace
-      continue-on-error: true
-      with:
-        name: ncs-${{hashFiles('myroot/mycode/west.yml')}}
-        path: tmp
+     uses: actions/cache/restore@v3.3.1
+     with:
+       path: myroot
+       key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
+     id: cache-restore-ncs-zephyr-workspace
+    
+    # - name: Restore cached west workspace
+    #   uses: actions/download-artifact@v3
+    #   id: artifacts-download-ncs-zephyr-workspace
+    #   continue-on-error: true
+    #   with:
+    #     name: ncs-${{hashFiles('myroot/mycode/west.yml')}}
+    #     path: tmp
 
-    - name: Unzip cached west workspace
-      if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome == 'success'}}
-      run: tar -xf tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz -C myroot
+    # - name: Unzip cached west workspace
+    #   if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome == 'success'}}
+    #   run: tar -xf tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz -C myroot
       
     - name: Get nRF Connect SDK code
       if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome != 'success' }}
@@ -63,29 +63,29 @@ jobs:
         echo "west update"
         west update
 
-    #- name: Save cached west workspace
-    #  if: ${{ steps.cache-restore-ncs-zephyr-workspace.outputs.cache-hit != 'true' }}
-    #  uses: actions/cache/save@v3.3.1
-    #  with:
-    #    path: | 
-    #      myroot/*
-    #      !myroot/mycode 
-    #    key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
-    #  id: cache-save-ncs-zephyr-workspace
+    - name: Save cached west workspace
+     if: ${{ steps.cache-restore-ncs-zephyr-workspace.outputs.cache-hit != 'true' }}
+     uses: actions/cache/save@v3.3.1
+     with:
+       path: | 
+         myroot/*
+         !myroot/mycode 
+       key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
+     id: cache-save-ncs-zephyr-workspace
 
-    - name: Zip west workspace
-      if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome != 'success' }}
-      run: |
-        mkdir tmp
-        tar --exclude='myroot/mycode' -zcvf tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz myroot
-      id: zip-ncs-zephyr
+    # - name: Zip west workspace
+    #   if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome != 'success' }}
+    #   run: |
+    #     mkdir tmp
+    #     tar --exclude='myroot/mycode' -zcvf tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz myroot
+    #   id: zip-ncs-zephyr
 
-    - name: Upload zipped west workspace
-      if: ${{steps.zip-ncs-zephyr.outcome == 'success'}}
-      uses: actions/upload-artifact@v3
-      with:
-        name: ncs-${{hashFiles('myroot/mycode/west.yml')}}
-        path: tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz
+    # - name: Upload zipped west workspace
+    #   if: ${{steps.zip-ncs-zephyr.outcome == 'success'}}
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: ncs-${{hashFiles('myroot/mycode/west.yml')}}
+    #     path: tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz
 
     - name: Export zephyr CMake packages
       working-directory: myroot

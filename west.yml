@@ -12,9 +12,11 @@ manifest:
     - name: nrf
       repo-path: sdk-nrf
       revision: v2.2.0
+      clone-depth: 1
       import: true
     - name: hal_atmel
       remote: zephyrproject
+      clone-depth: 1
       path: modules/hal/atmel
       revision: master
       groups:

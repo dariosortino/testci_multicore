@@ -54,7 +54,7 @@ jobs:
       run: tar -xf tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz -C myroot
       
     - name: Get nRF Connect SDK code
-      if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome != 'successs' }}
+      if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome != 'success' }}
       run: |
         # See https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/installing.html#get-the-ncs-code
         cd myroot
@@ -74,7 +74,7 @@ jobs:
     #  id: cache-save-ncs-zephyr-workspace
 
     - name: Zip west workspace
-      if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome == 'success' }}
+      if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome != 'success' }}
       run: tar --exclude='myroot/mycode' -zcvf tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz myroot
       id: zip-ncs-zephyr
 
@@ -86,6 +86,7 @@ jobs:
         path: tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz
 
     - name: Export zephyr CMake packages
+      working-directoty: myroot
       run: west zephyr-export
 
     - name: Install additional Python dependencies

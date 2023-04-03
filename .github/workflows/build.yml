@@ -40,12 +40,13 @@ jobs:
     #    path: myroot
     #    key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
     #  id: cache-restore-ncs-zephyr-workspace
+    
     - name: Restore cached west workspace
       uses: actions/download-artifacts@v3
       id: artifacts-download-ncs-zephyr-workspace
       continue-on-error: true
       with:
-        name: 'ncs-${{hashFiles('myroot/mycode/west.yml')}}'
+        name: ncs-${{hashFiles('myroot/mycode/west.yml')}}
         path: tmp
 
     - name: Unzip cached west workspace
@@ -81,7 +82,7 @@ jobs:
       if: ${{steps.zip-ncs-zephyr.conclusion == 'success'}}
       uses: actions/upload-artifacts@v3
       with:
-        name: 'ncs-${{hashFiles('myroot/mycode/west.yml')}}'
+        name: ncs-${{hashFiles('myroot/mycode/west.yml')}}
         path: tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz
 
     - name: Export zephyr CMake packages

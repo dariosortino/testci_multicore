@@ -35,11 +35,11 @@ jobs:
         source ~/.bashrc
 
     - name: Restore cached west workspace
-     uses: actions/cache/restore@v3.3.1
-     with:
-       path: myroot
-       key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
-     id: cache-restore-ncs-zephyr-workspace
+      uses: actions/cache/restore@v3.3.1
+      with:
+        path: myroot
+        key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
+      id: cache-restore-ncs-zephyr-workspace
     
     # - name: Restore cached west workspace
     #   uses: actions/download-artifact@v3
@@ -64,14 +64,14 @@ jobs:
         west update
 
     - name: Save cached west workspace
-     if: ${{ steps.cache-restore-ncs-zephyr-workspace.outputs.cache-hit != 'true' }}
-     uses: actions/cache/save@v3.3.1
-     with:
-       path: | 
-         myroot/*
-         !myroot/mycode 
-       key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
-     id: cache-save-ncs-zephyr-workspace
+      if: ${{ steps.cache-restore-ncs-zephyr-workspace.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v3.3.1
+      with:
+        path: | 
+          myroot/*
+          !myroot/mycode 
+        key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
+      id: cache-save-ncs-zephyr-workspace
 
     # - name: Zip west workspace
     #   if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome != 'success' }}

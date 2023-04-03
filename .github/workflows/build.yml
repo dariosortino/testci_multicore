@@ -13,7 +13,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
-        fetch-depth: 0
         path: myroot/mycode
 
     - name: Installing required tools
@@ -35,15 +34,26 @@ jobs:
         echo 'export PATH=~/.local/bin:"$PATH"' >> ~/.bashrc
         source ~/.bashrc
 
+    #- name: Restore cached west workspace
+    #  uses: actions/cache/restore@v3.3.1
+    #  with:
+    #    path: myroot
+    #    key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
+    #  id: cache-restore-ncs-zephyr-workspace
     - name: Restore cached west workspace
-      uses: actions/cache/restore@v3.3.1
+      uses: actions/download-artifacts@v3
       with:
-        path: myroot
-        key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
-      id: cache-restore-ncs-zephyr-workspace
+        name: 'ncs-${{hashFiles('myroot/mycode/west.yml')}}'
+        path: tmp
+      id: artifacts-download-ncs-zephyr-workspace
+      continue-on-error: true
+
+    - name: Unzip cached west workspace
+      if: ${{steps.artifacts-download-ncs-zephyr-workspace.conclusion == 'success'}}
+      run: tar -xf tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz -C myroot
       
     - name: Get nRF Connect SDK code
-      if: ${{ steps.cache-restore-ncs-zephyr-workspace.outputs.cache-hit != 'true' }}
+      if: ${{steps.artifacts-download-ncs-zephyr-workspace.conclusion != 'successs' }}
       run: |
         # See https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/installing.html#get-the-ncs-code
         cd myroot
@@ -51,17 +61,30 @@ jobs:
         west init -l mycode
         echo "west update"
         west update
-        west zephyr-export
 
-    - name: Save cached west workspace
-      if: ${{ steps.cache-restore-ncs-zephyr-workspace.outputs.cache-hit != 'true' }}
-      uses: actions/cache/save@v3.3.1
+    #- name: Save cached west workspace
+    #  if: ${{ steps.cache-restore-ncs-zephyr-workspace.outputs.cache-hit != 'true' }}
+    #  uses: actions/cache/save@v3.3.1
+    #  with:
+    #    path: | 
+    #      myroot/*
+    #      !myroot/mycode 
+    #    key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
+    #  id: cache-save-ncs-zephyr-workspace
+
+    - name: Zip west workspace
+      if: ${{steps.artifacts-download-ncs-zephyr-workspace.conclusion != 'success' }}
+      run: tar --exclude='myroot/mycode' -zcvf tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz myroot
+      id: zip-ncs-zephyr
+
+    - name: Upload zipped west workspace
+      if: ${{steps.zip-ncs-zephyr.conclusion == 'success'}}
       with:
-        path: | 
-          myroot/*
-          !myroot/mycode 
-        key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
-      id: cache-save-ncs-zephyr-workspace
+        name: 'ncs-${{hashFiles('myroot/mycode/west.yml')}}'
+        path: tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz
+
+    - name: Export zephyr CMake packages
+      run: west zephyr-export
 
     - name: Install additional Python dependencies
       working-directory: myroot

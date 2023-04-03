@@ -68,7 +68,7 @@ jobs:
       run: |
         # See https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/installing.html#install-additional-python-dependencies
         pip3 install --user -r zephyr/scripts/requirements.txt
-        pip3 install --user -r ncs/scripts/requirements.txt
+        pip3 install --user -r nrf/scripts/requirements.txt
         pip3 install --user -r bootloader/mcuboot/scripts/requirements.txt
         
     - name: Install a toolchain

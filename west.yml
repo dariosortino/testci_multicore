@@ -9,7 +9,7 @@ manifest:
     remote: ncs-sdk
 
   projects:
-    - name: ncs
+    - name: nrf
       repo-path: sdk-nrf
       revision: v2.2.0
       import: true

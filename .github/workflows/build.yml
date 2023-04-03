@@ -50,11 +50,11 @@ jobs:
         path: tmp
 
     - name: Unzip cached west workspace
-      if: ${{steps.artifacts-download-ncs-zephyr-workspace.conclusion == 'success'}}
+      if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome == 'success'}}
       run: tar -xf tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz -C myroot
       
     - name: Get nRF Connect SDK code
-      if: ${{steps.artifacts-download-ncs-zephyr-workspace.conclusion != 'successs' }}
+      if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome != 'successs' }}
       run: |
         # See https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/installing.html#get-the-ncs-code
         cd myroot
@@ -74,12 +74,12 @@ jobs:
     #  id: cache-save-ncs-zephyr-workspace
 
     - name: Zip west workspace
-      if: ${{steps.artifacts-download-ncs-zephyr-workspace.conclusion != 'success' }}
+      if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome= 'success' }}
       run: tar --exclude='myroot/mycode' -zcvf tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz myroot
       id: zip-ncs-zephyr
 
     - name: Upload zipped west workspace
-      if: ${{steps.zip-ncs-zephyr.conclusion == 'success'}}
+      if: ${{steps.zip-ncs-zephyr.outcome == 'success'}}
       uses: actions/upload-artifact@v3
       with:
         name: ncs-${{hashFiles('myroot/mycode/west.yml')}}

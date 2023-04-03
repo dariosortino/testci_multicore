@@ -42,11 +42,11 @@ jobs:
     #  id: cache-restore-ncs-zephyr-workspace
     - name: Restore cached west workspace
       uses: actions/download-artifacts@v3
+      id: artifacts-download-ncs-zephyr-workspace
+      continue-on-error: true
       with:
         name: 'ncs-${{hashFiles('myroot/mycode/west.yml')}}'
         path: tmp
-      id: artifacts-download-ncs-zephyr-workspace
-      continue-on-error: true
 
     - name: Unzip cached west workspace
       if: ${{steps.artifacts-download-ncs-zephyr-workspace.conclusion == 'success'}}
@@ -79,6 +79,7 @@ jobs:
 
     - name: Upload zipped west workspace
       if: ${{steps.zip-ncs-zephyr.conclusion == 'success'}}
+      uses: actions/upload-artifacts@v3
       with:
         name: 'ncs-${{hashFiles('myroot/mycode/west.yml')}}'
         path: tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz

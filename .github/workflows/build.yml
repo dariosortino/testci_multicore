@@ -86,7 +86,7 @@ jobs:
         path: tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz
 
     - name: Export zephyr CMake packages
-      working-directoty: myroot
+      working-directory: myroot
       run: west zephyr-export
 
     - name: Install additional Python dependencies

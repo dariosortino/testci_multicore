@@ -74,7 +74,7 @@ jobs:
     #  id: cache-save-ncs-zephyr-workspace
 
     - name: Zip west workspace
-      if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome= 'success' }}
+      if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome == 'success' }}
       run: tar --exclude='myroot/mycode' -zcvf tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz myroot
       id: zip-ncs-zephyr
 

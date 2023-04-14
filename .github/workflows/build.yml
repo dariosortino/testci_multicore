@@ -37,7 +37,8 @@ jobs:
     - name: Restore cached west workspace
       uses: actions/cache/restore@v3.3.1
       with:
-        path: myroot
+        #path: myroot
+        path: provacache
         key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
       id: cache-restore-ncs-zephyr-workspace
     
@@ -62,7 +63,11 @@ jobs:
         west init -l mycode
         echo "west update"
         west update
-        echo "Stringa test">prova/test.txt
+
+    - name: Test file cache
+      run: |
+        mkdir provacache
+        echo "provaprova" > provacache/prova.txt
 
     - name: Save cached west workspace
       if: ${{ steps.cache-restore-ncs-zephyr-workspace.outputs.cache-hit != 'true' }}
@@ -71,8 +76,7 @@ jobs:
         # path: | 
         #   myroot/*
         #   !myroot/mycode
-        path:  |
-          myroot/prova/test.txt
+        path: provacache
         key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
       id: cache-save-ncs-zephyr-workspace
 

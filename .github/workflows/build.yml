@@ -37,22 +37,9 @@ jobs:
     - name: Restore cached west workspace
       uses: actions/cache/restore@v3.3.1
       with:
-        #path: myroot
-        path: provacache
+        path: myroot
         key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
       id: cache-restore-ncs-zephyr-workspace
-    
-    # - name: Restore cached west workspace
-    #   uses: actions/download-artifact@v3
-    #   id: artifacts-download-ncs-zephyr-workspace
-    #   continue-on-error: true
-    #   with:
-    #     name: ncs-${{hashFiles('myroot/mycode/west.yml')}}
-    #     path: tmp
-
-    # - name: Unzip cached west workspace
-    #   if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome == 'success'}}
-    #   run: tar -xf tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz -C myroot
       
     - name: Get nRF Connect SDK code
       if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome != 'success' }}
@@ -64,35 +51,15 @@ jobs:
         echo "west update"
         west update
 
-    - name: Test file cache
-      run: |
-        mkdir provacache
-        echo "provaprova" > provacache/prova.txt
-
     - name: Save cached west workspace
       if: ${{ steps.cache-restore-ncs-zephyr-workspace.outputs.cache-hit != 'true' }}
       uses: actions/cache/save@v3.3.1
       with:
-        # path: | 
-        #   myroot/*
-        #   !myroot/mycode
-        path: provacache
+         path: | 
+           myroot/*
+           !myroot/mycode
         key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
       id: cache-save-ncs-zephyr-workspace
-
-    # - name: Zip west workspace
-    #   if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome != 'success' }}
-    #   run: |
-    #     mkdir tmp
-    #     tar --exclude='myroot/mycode' -zcvf tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz myroot
-    #   id: zip-ncs-zephyr
-
-    # - name: Upload zipped west workspace
-    #   if: ${{steps.zip-ncs-zephyr.outcome == 'success'}}
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #     name: ncs-${{hashFiles('myroot/mycode/west.yml')}}
-    #     path: tmp/ncs-zephyr-${{hashFiles('myroot/mycode/west.yml')}}.tgz
 
     - name: Export zephyr CMake packages
       working-directory: myroot
@@ -127,4 +94,3 @@ jobs:
         west build --build-dir mycode/multicore/build mycode/multicore --pristine \
         --board nrf5340dk_nrf5340_cpuapp -- -DNCS_TOOLCHAIN_VERSION:STRING="NONE" \
         -DCONF_FILE:STRING="prj.conf"
-        

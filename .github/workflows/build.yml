@@ -120,3 +120,5 @@ jobs:
         west build --build-dir mycode/multicore/build mycode/multicore --pristine \
         --board nrf5340dk_nrf5340_cpuapp -- -DNCS_TOOLCHAIN_VERSION:STRING="NONE" \
         -DCONF_FILE:STRING="prj.conf"
+
+        

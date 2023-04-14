@@ -12,7 +12,6 @@ int main(void)
 	printk("Hello world from %s\n", CONFIG_BOARD);
 	printk("Hello world from %s\n", CONFIG_BOARD);
 	printk("Hello world from %s\n", CONFIG_BOARD);
-	int a = 1;
 
 	return 0;
 }

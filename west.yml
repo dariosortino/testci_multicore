@@ -1,0 +1,23 @@
+manifest:
+  remotes:
+    - name: ncs-sdk
+      url-base: https://github.com/nrfconnect
+    - name: zephyrproject
+      url-base: https://github.com/zephyrproject-rtos
+
+  defaults:
+    remote: ncs-sdk
+
+  projects:
+    - name: nrf
+      repo-path: sdk-nrf
+      revision: v2.2.0
+      clone-depth: 1
+      import: true
+    - name: hal_atmel
+      remote: zephyrproject
+      clone-depth: 1
+      path: modules/hal/atmel
+      revision: master
+      groups:
+        - hal

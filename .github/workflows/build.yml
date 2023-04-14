@@ -1,0 +1,96 @@
+name: Build Firmware
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    # if: "github.event_name != 'pull_request' || contains(toJSON(github.event.pull_request.body), '[enable firmware ci]') || contains(toJSON(github.event.pull_request.labels.*.name), '[enable firmware ci]')"
+    runs-on: ubuntu-latest
+    env:
+      CMAKE_PREFIX_PATH: /opt/toolchains
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        path: myroot/mycode
+
+    - name: Installing required tools
+      run: |
+        # See https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/installing.html#install-the-required-tools
+        wget https://apt.kitware.com/kitware-archive.sh
+        sudo bash kitware-archive.sh
+        # Install dependencies
+        sudo apt install --no-install-recommends git cmake ninja-build gperf \
+          ccache dfu-util device-tree-compiler \
+          python3-dev python3-pip python3-setuptools python3-tk python3-wheel xz-utils file \
+          make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1
+        
+
+    - name: Install west
+      run: |
+        # See https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/installing.html#install-west
+        pip3 install --user west
+        echo 'export PATH=~/.local/bin:"$PATH"' >> ~/.bashrc
+        source ~/.bashrc
+
+    - name: Restore cached west workspace
+      uses: actions/cache/restore@v3.3.1
+      with:
+        path: myroot
+        key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
+      id: cache-restore-ncs-zephyr-workspace
+      
+    - name: Get nRF Connect SDK code
+      if: ${{steps.artifacts-download-ncs-zephyr-workspace.outcome != 'success' }}
+      run: |
+        # See https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/installing.html#get-the-ncs-code
+        cd myroot
+        echo "west init"
+        west init -l mycode
+        echo "west update"
+        west update
+
+    - name: Save cached west workspace
+      if: ${{ steps.cache-restore-ncs-zephyr-workspace.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v3.3.1
+      with:
+        path: |
+          myroot/*
+          !myroot/mycode
+        key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}
+      id: cache-save-ncs-zephyr-workspace
+
+    - name: Export zephyr CMake packages
+      working-directory: myroot
+      run: west zephyr-export
+
+    - name: Install additional Python dependencies
+      working-directory: myroot
+      run: |
+        # See https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/installing.html#install-additional-python-dependencies
+        pip3 install --user -r zephyr/scripts/requirements.txt
+        pip3 install --user -r nrf/scripts/requirements.txt
+        pip3 install --user -r bootloader/mcuboot/scripts/requirements.txt
+        
+    - name: Install a toolchain
+      shell: bash
+      run: |
+        # See https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/installing.html#install-a-toolchain
+        cd ~
+        wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.15.1/zephyr-sdk-0.15.1_linux-x86_64.tar.gz
+        wget -O - https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.15.1/sha256.sum | shasum --check --ignore-missing
+        tar xvf zephyr-sdk-0.15.1_linux-x86_64.tar.gz --directory $HOME/.local
+        cd $HOME/.local/zephyr-sdk-0.15.1
+        ./setup.sh -t all -h -c
+        sudo cp ~/.local/zephyr-sdk-0.15.1/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
+        sudo udevadm control --reload
+
+    - name: Build multicore
+      working-directory: myroot
+      run: |
+        # Setup command line build env
+        source zephyr/zephyr-env.sh
+        west build --build-dir mycode/multicore/build mycode/multicore --pristine \
+        --board nrf5340dk_nrf5340_cpuapp -- -DNCS_TOOLCHAIN_VERSION:STRING="NONE" \
+        -DCONF_FILE:STRING="prj.conf"

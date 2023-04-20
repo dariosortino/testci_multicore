@@ -29,7 +29,7 @@ jobs:
     # Print the environment variables to simplify development and debugging
     - name: Environment Variables
     # Use bash  in order to have same basic commands in all OSs
-      shell: bash -l {0s}
+      shell: bash -l {0}
       run: env
 
     - name: Restore cached conda based dependencies

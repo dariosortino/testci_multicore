@@ -25,6 +25,8 @@ jobs:
       with:
         miniforge-variant: Mambaforge
         miniforge-version: latest
+        channels: conda-forge, robotology, TimVideos
+        channel-priority: true
   
     # Print the environment variables to simplify development and debugging
     - name: Environment Variables

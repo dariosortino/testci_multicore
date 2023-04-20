@@ -36,21 +36,22 @@ jobs:
       uses: actions/cache/restore@v3
       with:
         path: ${{ env.CONDA }}/envs/test
-        key: conda-${{ hashFiles('.github/workflows/requirements.yml') }}-${{ env.DATE }}
+        key: conda-${{ hashFiles('myroot/mycode/.github/workflows/requirements.yml') }}-${{ env.DATE }}
       id: cache-restore-conda-deps
   
     - name: Dependencies (using conda)
       shell: bash -l {0}
+      working-directory: myroot/mycode
       if: steps.cache-restore-conda-deps.outputs.cache-hit != 'true'
       run: |
-        mamba env update -f .github/workflows/conda-deps.yml
+        mamba env update -f .github/workflows/requirements.yml
       
     - name: Cache conda based dependencies
       if: ${{ steps.cache-restore-conda-deps.outputs.cache-hit != 'true' }}
       uses: actions/cache/save@v3
       with:
         path: ${{ env.CONDA }}/envs/test
-        key: conda-${{ hashFiles('.github/workflows/conda-deps.yml') }}-${{ env.DATE }}
+        key: conda-${{ hashFiles('myroot/mycode/.github/workflows/requirements.yml') }}-${{ env.DATE }}
       id: cache-save-conda-deps
 
     - name: Restore cached west workspace

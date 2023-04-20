@@ -6,11 +6,11 @@ dependencies:
   - make
   - ccache
   - dfu-util
-  - device-tree-compiler
+  - dtc
   - xz
   - file 
   - gcc
-  - g++
+  - gxx
   - sdl2 
   - libmagic
   - west

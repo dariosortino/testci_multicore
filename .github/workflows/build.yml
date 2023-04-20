@@ -92,6 +92,7 @@ jobs:
 
     - name: Install additional Python dependencies
       working-directory: myroot
+      shell: bash -l {0}
       run: |
         # See https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/installing.html#install-additional-python-dependencies
         pip3 install --user -r zephyr/scripts/requirements.txt

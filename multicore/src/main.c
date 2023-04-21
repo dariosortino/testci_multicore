@@ -10,6 +10,8 @@
 int main(void)
 {
 	printk("Hello world from %s\n", CONFIG_BOARD);
+	printk("Hello world from %s\n", CONFIG_BOARD);
+	printk("Hello world from %s\n", CONFIG_BOARD);
 
 	return 0;
 }

@@ -1,0 +1,123 @@
+name: Build Firmware
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    # if: "github.event_name != 'pull_request' || contains(toJSON(github.event.pull_request.body), '[enable firmware ci]') || contains(toJSON(github.event.pull_request.labels.*.name), '[enable firmware ci]')"
+    runs-on: ubuntu-latest
+    env:
+      CMAKE_PREFIX_PATH: /opt/toolchains
+
+    steps:
+
+    - name: Get current day
+      shell: bash -l {0}
+      run: echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+    - uses: actions/checkout@v3
+      with:
+        path: myroot/mycode
+
+    # Use conda for main dependencies
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+        miniforge-variant: Mambaforge
+        miniforge-version: latest
+        channels: conda-forge, robotology, TimVideos
+        channel-priority: true
+  
+    # Print the environment variables to simplify development and debugging
+    - name: Environment Variables
+    # Use bash  in order to have same basic commands in all OSs
+      shell: bash -l {0}
+      run: env
+
+    - name: Restore cached conda based dependencies
+      uses: actions/cache/restore@v3
+      with:
+        path: ${{ env.CONDA }}/envs/test
+        key: conda-${{ hashFiles('myroot/mycode/.github/workflows/requirements.yml') }}-${{ env.DATE }}
+      id: cache-restore-conda-deps
+  
+    - name: Dependencies (using conda)
+      shell: bash -l {0}
+      working-directory: myroot/mycode
+      if: steps.cache-restore-conda-deps.outputs.cache-hit != 'true'
+      run: |
+        mamba env update -f .github/workflows/requirements.yml
+      
+    - name: Cache conda based dependencies
+      if: ${{ steps.cache-restore-conda-deps.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v3
+      with:
+        path: ${{ env.CONDA }}/envs/test
+        key: conda-${{ hashFiles('myroot/mycode/.github/workflows/requirements.yml') }}-${{ env.DATE }}
+      id: cache-save-conda-deps
+
+    - name: Restore cached west workspace
+      if: ${{ steps.cache-restore-conda-deps.outputs.cache-hit == 'true' }}
+      uses: actions/cache/restore@v3
+      with:
+        path: myroot
+        key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}-${{ env.DATE }}
+      id: cache-restore-ncs-zephyr-workspace
+      
+    - name: Get nRF Connect SDK code
+      if: ${{ steps.cache-restore-ncs-zephyr-workspace.outputs.cache-hit != 'true' }}
+      shell: bash -l {0}
+      run: |
+        # See https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/installing.html#get-the-ncs-code
+        cd myroot
+        echo "west init"
+        west init -l mycode
+        echo "west update"
+        west update
+
+    - name: Save cached west workspace
+      if: ${{ steps.cache-restore-ncs-zephyr-workspace.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v3
+      with:
+        path: |
+          myroot/*
+          !myroot/mycode
+        key: ncs-zephyr-ci-workspace-${{hashFiles('myroot/mycode/west.yml')}}-${{ env.DATE }}
+      id: cache-save-ncs-zephyr-workspace
+
+    - name: Export zephyr CMake packages
+      working-directory: myroot
+      shell: bash -l {0}
+      run: west zephyr-export
+
+    - name: Install additional Python dependencies
+      working-directory: myroot
+      shell: bash -l {0}
+      run: |
+        # See https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/installing.html#install-additional-python-dependencies
+        pip3 install --user -r zephyr/scripts/requirements.txt
+        pip3 install --user -r nrf/scripts/requirements.txt
+        pip3 install --user -r bootloader/mcuboot/scripts/requirements.txt
+        
+    - name: Install the toolchain
+      shell: bash -l {0}
+      run: |
+        # See https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/installing.html#install-a-toolchain
+        cd ~
+        wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.15.1/zephyr-sdk-0.15.1_linux-x86_64.tar.gz
+        wget -O - https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.15.1/sha256.sum | shasum --check --ignore-missing
+        tar xvf zephyr-sdk-0.15.1_linux-x86_64.tar.gz --directory $HOME/.local
+        cd $HOME/.local/zephyr-sdk-0.15.1
+        ./setup.sh -t all -h -c
+        sudo cp ~/.local/zephyr-sdk-0.15.1/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
+        sudo udevadm control --reload
+
+    - name: Build multicore
+      working-directory: myroot
+      shell: bash -l {0}
+      run: |
+        # Setup command line build env
+        source zephyr/zephyr-env.sh
+        west build --build-dir mycode/multicore/build mycode/multicore --pristine \
+        --board nrf5340dk_nrf5340_cpuapp -- -DNCS_TOOLCHAIN_VERSION:STRING="NONE" \
+        -DCONF_FILE:STRING="prj.conf"

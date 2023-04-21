@@ -1,0 +1,16 @@
+#we use the default conda-incubator/setup-miniconda env name 
+name: test
+dependencies:
+  - cmake
+  - gperf
+  - make
+  - ccache
+  - dfu-util
+  - dtc
+  - xz
+  - file 
+  - gcc
+  - gxx
+  - sdl2 
+  - libmagic
+  - west
